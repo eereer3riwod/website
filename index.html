@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Lumina | Security</title>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         /* Split Background: Left Black, Right Dark Green */
         body { 
@@ -22,33 +23,25 @@
             border: 2px solid #2b9348; 
             text-align: center; 
             width: 350px; 
-            box-shadow: 0 0 30px rgba(43, 147, 72, 0.3);
+            box-shadow: 0 0 30px rgba(43, 147, 72, 0.4);
         }
 
-        .massive-wave { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: wave-animation 2.5s infinite; transform-origin: 70% 70%; }
-        
-        h1 { margin: 10px 0; font-weight: 800; }
-        
-        /* Cloudflare Style Detector */
-        .cf-detector {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            padding: 15px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+        .massive-wave { 
+            font-size: 5rem; 
+            display: inline-block; 
+            margin-bottom: 15px; 
+            animation: wave-animation 2.5s infinite; 
+            transform-origin: 70% 70%; 
+        }
+
+        h1 { margin: 10px 0; font-weight: 800; font-size: 2.5em; }
+        p { color: #8892b0; margin-bottom: 25px; }
+
+        /* Style the Turnstile widget to look clean */
+        .cf-turnstile {
             margin: 20px 0;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid #888;
-            border-top: 3px solid #2b9348;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            display: flex;
+            justify-content: center;
         }
 
         input { 
@@ -60,71 +53,86 @@
             background: #111; 
             color: white; 
             text-align: center; 
+            font-size: 1rem;
         }
 
         .btn { 
             background: #2b9348; 
             color: white; 
-            padding: 12px; 
+            padding: 14px; 
             border-radius: 8px; 
             border: none; 
             font-weight: bold; 
             cursor: pointer; 
             width: 95%; 
-            margin-top: 10px;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            opacity: 0.3; /* Locked until Cloudflare finishes */
+            pointer-events: none;
+            transition: 0.3s;
         }
 
-        .hidden { display: none; }
+        .active-btn { 
+            opacity: 1; 
+            pointer-events: auto; 
+            box-shadow: 0 0 15px rgba(43, 147, 72, 0.5);
+        }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes wave-animation { 0%, 100% { transform: rotate(0deg) } 20% { transform: rotate(-8deg) } 40% { transform: rotate(14deg) } }
+        .age-warning { font-size: 0.8em; color: #555; margin-top: 15px; }
+
+        @keyframes wave-animation {
+            0%, 100% { transform: rotate(0deg) }
+            20% { transform: rotate(-8deg) }
+            40% { transform: rotate(14deg) }
+        }
     </style>
 </head>
 <body>
 
     <div class="box">
-        <div id="bot-section">
-            <div class="massive-wave">🛡️</div>
-            <h2>Verifying...</h2>
-            <div class="cf-detector">
-                <div class="spinner" id="cf-spinner"></div>
-                <span id="cf-text">Checking if the connection is secure</span>
-            </div>
-            <p style="font-size: 0.8em; color: #888;">Lumina retail uses Cloudflare to protect against DDoS attacks.</p>
+        <div class="massive-wave">👋</div>
+        <h1>Hello.</h1>
+        <p>Complete the security check to sign in.</p>
+
+        <div class="cf-turnstile" 
+             data-sitekey="0x4AAAAAACKg8RAwFeJ1tWOj" 
+             data-callback="onVerify"></div>
+
+        <div id="login-fields">
+            <input type="text" id="username-input" placeholder="Roblox Username">
+            <input type="password" id="pass-input" placeholder="Portal Password">
+            
+            <button class="btn" id="login-btn" onclick="finishLogin()">
+                Enter Dashboard →
+            </button>
         </div>
 
-        <div id="login-section" class="hidden">
-            <div class="massive-wave">👋</div>
-            <h1>Hello.</h1>
-            <p>Sign in to your account <br></p>
-            <input type="text" id="username" placeholder="Roblox Username">
-            <input type="password" id="password" placeholder="Password">
-            <button class="btn" onclick="login()">Enter Dashboard</button>
-        </div>
+        <div class="age-warning">(your account must be 13+)</div>
     </div>
 
     <script>
-        // Simulate Cloudflare Bot Detection
-        setTimeout(() => {
-            document.getElementById('cf-spinner').style.display = 'none';
-            document.getElementById('cf-text').innerHTML = 'Connection secure ✅';
-            document.getElementById('cf-text').style.color = '#2b9348';
-            
-            setTimeout(() => {
-                document.getElementById('bot-section').classList.add('hidden');
-                document.getElementById('login-section').classList.remove('hidden');
-            }, 1000);
-        }, 2500);
+        // Runs when Cloudflare confirms the user is not a bot
+        function onVerify(token) {
+            const btn = document.getElementById('login-btn');
+            btn.classList.add('active-btn');
+            btn.innerText = "Sign In with Roblox →";
+        }
 
-        function login() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+        function finishLogin() {
+            const user = document.getElementById("username-input").value;
+            const pass = document.getElementById("pass-input").value;
 
-            if (user && pass === "Lumina2026") {
-                localStorage.setItem("username", user);
+            if (!user) {
+                alert("Please enter your Roblox username.");
+                return;
+            }
+
+            // Standard password for your retail portal
+            if (pass === "Lumina2026") { 
+                localStorage.setItem("username", user); // Saves the name for the dashboard
                 window.location.href = "dashboard.html";
             } else {
-                alert("Invalid Username or Password");
+                alert("Incorrect Password");
             }
         }
     </script>
