@@ -13,7 +13,6 @@
             align-items: center; 
             height: 100vh; 
             margin: 0; 
-            overflow: hidden;
         }
 
         .box { 
@@ -28,18 +27,39 @@
 
         .massive-wave { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: wave-animation 2.5s infinite; transform-origin: 70% 70%; }
         
-        h1, h2 { margin: 10px 0; font-weight: 800; }
+        h1 { margin: 10px 0; font-weight: 800; }
         
+        /* Cloudflare Style Detector */
+        .cf-detector {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #888;
+            border-top: 3px solid #2b9348;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
         input { 
             width: 85%; 
             padding: 12px; 
-            margin: 15px 0; 
+            margin: 10px 0; 
             border-radius: 8px; 
             border: 1px solid #2b9348; 
             background: #111; 
             color: white; 
             text-align: center; 
-            font-size: 1rem;
         }
 
         .btn { 
@@ -51,94 +71,60 @@
             font-weight: bold; 
             cursor: pointer; 
             width: 95%; 
-            font-size: 1rem;
-            transition: 0.2s;
+            margin-top: 10px;
         }
-
-        .btn:hover { background: #38b359; transform: scale(1.02); }
 
         .hidden { display: none; }
 
-        .emoji-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        
-        .emoji-btn { 
-            font-size: 2rem; 
-            background: #1a1a1a; 
-            border: 1px solid #333; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            padding: 10px; 
-            transition: 0.2s;
-        }
-
-        .emoji-btn:hover { border-color: #2b9348; background: #222; }
-
-        @keyframes wave-animation {
-            0%, 100% { transform: rotate(0deg) }
-            20% { transform: rotate(-8deg) }
-            40% { transform: rotate(14deg) }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes wave-animation { 0%, 100% { transform: rotate(0deg) } 20% { transform: rotate(-8deg) } 40% { transform: rotate(14deg) } }
     </style>
 </head>
 <body>
 
-    <div class="box" id="captcha-box">
-        <div class="massive-wave">🛡️</div>
-        <h2>Security Check</h2>
-        <p>Select the <b>Green Leaf</b> to continue</p>
-        <div class="emoji-grid">
-            <button class="emoji-btn" onclick="checkEmoji(false)">🔥</button>
-            <button class="emoji-btn" onclick="checkEmoji(true)">🌿</button>
-            <button class="emoji-btn" onclick="checkEmoji(false)">❄️</button>
-            <button class="emoji-btn" onclick="checkEmoji(false)">🎸</button>
-            <button class="emoji-btn" onclick="checkEmoji(false)">🍕</button>
-            <button class="emoji-btn" onclick="checkEmoji(false)">🚗</button>
+    <div class="box">
+        <div id="bot-section">
+            <div class="massive-wave">🛡️</div>
+            <h2>Verifying...</h2>
+            <div class="cf-detector">
+                <div class="spinner" id="cf-spinner"></div>
+                <span id="cf-text">Checking if the connection is secure</span>
+            </div>
+            <p style="font-size: 0.8em; color: #888;">Lumina retail uses Cloudflare to protect against DDoS attacks.</p>
+        </div>
+
+        <div id="login-section" class="hidden">
+            <div class="massive-wave">👋</div>
+            <h1>Hello.</h1>
+            <p>Sign in to your account <br></p>
+            <input type="text" id="username" placeholder="Roblox Username">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn" onclick="login()">Enter Dashboard</button>
         </div>
     </div>
 
-    <div class="box hidden" id="login-box">
-        <div class="massive-wave">👋</div>
-        <h1>Hello.</h1>
-        <p>Press below to log into roblox <br><small>(your account must be 13+)</small></p>
-        
-        <input type="text" id="username-input" placeholder="Roblox Username">
-        <input type="password" id="pass-input" placeholder="Portal Password">
-        
-        <button class="btn" onclick="finishLogin()">Sign In with Roblox →</button>
-    </div>
-
     <script>
-        // Check if they already verified the emoji before
-        if (localStorage.getItem("emojiVerified") === "true") {
-            document.getElementById("captcha-box").classList.add("hidden");
-            document.getElementById("login-box").classList.remove("hidden");
-        }
+        // Simulate Cloudflare Bot Detection
+        setTimeout(() => {
+            document.getElementById('cf-spinner').style.display = 'none';
+            document.getElementById('cf-text').innerHTML = 'Connection secure ✅';
+            document.getElementById('cf-text').style.color = '#2b9348';
+            
+            setTimeout(() => {
+                document.getElementById('bot-section').classList.add('hidden');
+                document.getElementById('login-section').classList.remove('hidden');
+            }, 1000);
+        }, 2500);
 
-        function checkEmoji(isCorrect) {
-            if (isCorrect) {
-                localStorage.setItem("emojiVerified", "true"); // Remember this forever
-                document.getElementById("captcha-box").classList.add("hidden");
-                document.getElementById("login-box").classList.remove("hidden");
-            } else {
-                alert("Incorrect selection. Please try again.");
-            }
-        }
+        function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
 
-        function finishLogin() {
-            const user = document.getElementById("username-input").value;
-            const pass = document.getElementById("pass-input").value;
-
-            if (!user) {
-                alert("Please enter your Roblox username.");
-                return;
-            }
-
-            // SET YOUR PASSWORD HERE
-            if (pass === "Lumina2026") { 
-                localStorage.setItem("username", user); // Pass the name to the dashboard
+            if (user && pass === "Lumina2026") {
+                localStorage.setItem("username", user);
                 window.location.href = "dashboard.html";
             } else {
-                alert("Invalid Password");
+                alert("Invalid Username or Password");
             }
         }
     </script>
