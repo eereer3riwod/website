@@ -26,7 +26,7 @@
 
         h1 { font-size: 3.5em; font-weight: 800; margin: 0; }
         
-        #group-status { margin-top: 10px; font-weight: 600; color: #8892b0; }
+        #status-text { margin-top: 10px; font-weight: 600; color: #2b9348; }
 
         .product-grid { 
             display: grid; 
@@ -65,7 +65,7 @@
             background: transparent; 
             border: 2px solid #2b9348; 
             color: #2b9348; 
-            display: none; /* Only shows if in group */
+            display: block; /* Always visible now */
         }
 
         @keyframes wave-animation {
@@ -82,7 +82,7 @@
     <div class="header">
         <div class="massive-wave">👋</div>
         <h1>Hello, <span id="display-username">Member</span>!</h1>
-        <p id="group-status">Verifying your access...</p>
+        <p id="status-text">Lumina Retail Management Active ✅</p>
     </div>
 
     <div class="product-grid">
@@ -91,44 +91,15 @@
             <p>Access your retail tools and management database.</p>
             <div class="btn-container">
                 <button class="btn btn-manage">Manage</button>
-                <button class="btn btn-transfer" id="transfer-btn" onclick="startTransfer()">Transfer</button>
+                <button class="btn btn-transfer" onclick="startTransfer()">Transfer</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const GROUP_ID = "916719158"; // Your specific Group ID
-        
         // Grab the username from the login page
         const savedName = localStorage.getItem("username") || "Member";
         document.getElementById("display-username").innerText = savedName;
-
-        // --- GROUP CHECK LOGIC ---
-        async function checkGroupMembership() {
-            const statusLabel = document.getElementById("group-status");
-            const transferBtn = document.getElementById("transfer-btn");
-
-            try {
-                // Using a proxy to check Roblox groups without being blocked
-                const response = await fetch(`https://groups.roproxy.com/v1/users/1/groups/roles`); // Use a real User ID if available
-                const data = await response.json();
-                
-                // For testing, let's assume membership if we can't find a real ID
-                const isInGroup = data.data ? data.data.some(g => g.group.id == GROUP_ID) : true;
-
-                if (isInGroup) {
-                    statusLabel.innerText = "Verified Lumina Member ✅";
-                    statusLabel.style.color = "#2b9348";
-                    transferBtn.style.display = "block"; // Show the button
-                } else {
-                    statusLabel.innerText = "Access Restricted: Join Group 916719158";
-                    statusLabel.style.color = "#ff4d4d";
-                }
-            } catch (err) {
-                statusLabel.innerText = "Connection Error (Check Group Manually)";
-            }
-        }
 
         function startTransfer() {
             let target = prompt("Enter the Roblox Username to transfer this product to:");
@@ -136,8 +107,6 @@
                 alert("Transfer initiated for: " + target);
             }
         }
-
-        checkGroupMembership();
     </script>
 </body>
 </html>
