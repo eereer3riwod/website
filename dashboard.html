@@ -1,41 +1,105 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Lumina Retail | Login</title>
+    <title>Lumina | Portal</title>
     <style>
+        /* Split Background: Left is Black, Right is Dark Green */
         body { 
-            background-color: #000000; 
-            color: white; 
+            background: linear-gradient(to right, #000000 50%, #062118 50%); 
+            color: #e6f1ff; 
             font-family: 'Segoe UI', sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
+            padding: 50px; 
             margin: 0; 
+            min-height: 100vh;
         }
-        .login-container { text-align: center; }
-        h1 { margin: 10px 0; font-size: 28px; }
-        .login-btn { 
-            background-color: #052a36; 
-            border: 1px solid #0a4d5c; 
-            color: #ffffff; 
-            padding: 12px 30px; 
-            border-radius: 4px; 
-            text-decoration: none; 
-            display: inline-block;
-            font-size: 14px;
-            margin-top: 20px;
+
+        .header { margin-bottom: 50px; }
+        .massive-wave { font-size: 4rem; display: inline-block; animation: wave-animation 2.5s infinite; transform-origin: 70% 70%; }
+        h1 { font-size: 3em; font-weight: 800; margin: 0; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; margin-top: 40px; }
+
+        .card { 
+            background: rgba(0, 0, 0, 0.8); 
+            border: 2px solid #2b9348; 
+            padding: 30px; 
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .sub-text { color: #555; font-size: 12px; margin-top: 15px; }
+
+        .card h3 { color: #2b9348; margin-top: 0; }
+        
+        .btn-container { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        
+        .btn { padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; }
+        .btn-manage { background: #2b9348; color: white; }
+        .btn-transfer { background: #1a1a1a; color: #2b9348; border: 1px solid #2b9348; display: none; } /* Hidden by default */
+
+        @keyframes wave-animation {
+            0%, 100% { transform: rotate(0deg) }
+            20% { transform: rotate(-8deg) }
+            40% { transform: rotate(14deg) }
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <span>👋</span>
-        <h1>Hola,</h1>
-        <p>Press sign in to roblox to get started.</p>
-        <a href="dashboard.html" class="login-btn">Sign in with Roblox &rarr;</a>
-        <div class="sub-text">Unable to sign in with Roblox?</div>
+
+    <div class="header">
+        <div class="massive-wave">👋</div>
+        <h1><span id="random-greeting">Hello</span>, <span id="username">Member</span>!</h1>
+        <p id="group-status">Checking group membership...</p>
     </div>
+
+    <div class="product-grid">
+        <div class="card">
+            <h3>Lumina Pro</h3>
+            <p>Premium retail license.</p>
+            <div class="btn-container">
+                <button class="btn btn-manage">Manage</button>
+                <button class="btn btn-transfer" id="transfer-btn" onclick="transferProduct()">Transfer License</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const GROUP_ID = "916719158"; // Put your Roblox Group ID here
+        const USER_ID = "12345678"; // This would normally come from your Login page
+        
+        // --- RANDOM GREETING ---
+        const greetings = ["Hola", "Hello", "Bonjour", "Bongure"];
+        document.getElementById("random-greeting").innerText = greetings[Math.floor(Math.random() * greetings.length)];
+
+        // --- GROUP CHECK FUNCTION ---
+        async function checkGroup() {
+            try {
+                // Using a proxy to check Roblox Group status
+                const response = await fetch(`https://groups.roblox.com/v2/users/${USER_ID}/groups/roles`);
+                const data = await response.json();
+                
+                const isInGroup = data.data.some(group => group.group.id == GROUP_ID);
+                
+                if (isInGroup) {
+                    document.getElementById("group-status").innerText = "Verified Group Member ✅";
+                    document.getElementById("transfer-btn").style.display = "block"; // Show the button
+                } else {
+                    document.getElementById("group-status").innerText = "Join our group to unlock transfers.";
+                    document.getElementById("group-status").style.color = "#ff4d4d";
+                }
+            } catch (error) {
+                console.log("Error checking group:", error);
+                document.getElementById("group-status").innerText = "Group check unavailable.";
+            }
+        }
+
+        function transferProduct() {
+            let targetUser = prompt("Enter the Roblox Username to transfer this license to:");
+            if (targetUser) {
+                alert("Transfer request for " + targetUser + " has been sent to the database!");
+            }
+        }
+
+        checkGroup();
+    </script>
 </body>
 </html>
