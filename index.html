@@ -4,7 +4,6 @@
     <title>Lumina | Portal Access</title>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
-        /* Split Background: Left Black, Right Dark Green */
         body { 
             background: linear-gradient(to right, #000000 50%, #062118 50%); 
             color: white; font-family: 'Segoe UI', sans-serif; 
@@ -15,7 +14,7 @@
             border: 2px solid #2b9348; text-align: center; width: 380px; 
             box-shadow: 0 0 30px rgba(43, 147, 72, 0.4);
         }
-        .massive-wave { font-size: 5rem; margin-bottom: 10px; display: inline-block; animation: wave-animation 2.5s infinite; transform-origin: 70% 70%; }
+        .massive-wave { font-size: 5rem; display: inline-block; margin-bottom: 10px; animation: wave-animation 2.5s infinite; transform-origin: 70% 70%; }
         h1 { font-size: 2.2em; margin: 10px 0; }
         p { color: #8892b0; font-size: 0.95em; }
         input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #2b9348; background: #111; color: white; text-align: center; }
@@ -34,7 +33,7 @@
         
         <div id="signup-step-1">
             <h1>Create Account</h1>
-            <p>Enter your Roblox username to begin verification.</p>
+            <p>Complete the check and enter your username.</p>
             <div class="cf-turnstile" data-sitekey="0x4AAAAAACKg8RAwFeJ1tWOj" data-callback="onVerify"></div>
             <input type="text" id="username" placeholder="Roblox Username">
             <button class="btn" id="signup-btn" onclick="startVerification()" disabled>Next: Verify Bio</button>
@@ -43,9 +42,9 @@
 
         <div id="signup-step-2" class="hidden">
             <h1>Verify Bio</h1>
-            <p>Paste this code into your Roblox "About" section to prove ownership:</p>
+            <p>Paste this code into your Roblox "About" section:</p>
             <div class="code-box" id="verify-code">LUMINA-XXXX</div>
-            <button class="btn" onclick="checkBio()">Check My Profile</button>
+            <button class="btn" id="check-bio-btn" onclick="checkBio()">Check My Profile</button>
             <button class="toggle-btn" onclick="location.reload()">Cancel</button>
         </div>
 
@@ -58,7 +57,7 @@
 
         <div id="login-section" class="hidden">
             <h1>Welcome Back</h1>
-            <p>Sign in to the Lumina Dashboard.</p>
+            <p>Sign in to your Lumina account.</p>
             <input type="text" id="login-user" placeholder="Username">
             <input type="password" id="login-pass" placeholder="Password">
             <button class="btn" onclick="performLogin()">Log In →</button>
@@ -69,7 +68,6 @@
     <script>
         let verificationCode = "";
 
-        // Enable button when Cloudflare finishes
         function onVerify() { document.getElementById('signup-btn').disabled = false; }
 
         function showLogin() {
@@ -90,15 +88,16 @@
 
         async function checkBio() {
             const user = document.getElementById('username').value;
+            const btn = document.getElementById('check-bio-btn');
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+
             try {
-                // Get User ID from username using RoProxy
                 const userRes = await fetch(`https://users.roproxy.com/v1/users/search?keyword=${user}&limit=1`);
                 const userData = await userRes.json();
-                if (!userData.data.length) return alert("User not found!");
+                if (!userData.data.length) throw new Error("User not found");
                 
                 const userId = userData.data[0].id;
-
-                // Get Bio/Description
                 const profileRes = await fetch(`https://users.roproxy.com/v1/users/${userId}`);
                 const profileData = await profileRes.json();
                 
@@ -106,10 +105,13 @@
                     document.getElementById('signup-step-2').classList.add('hidden');
                     document.getElementById('signup-step-3').classList.remove('hidden');
                 } else {
-                    alert("Verification code not found in your bio! Did you save it?");
+                    alert("Code not found in bio! Make sure you saved it and wait 10 seconds.");
                 }
             } catch (err) {
-                alert("Could not connect to Roblox. Check username or try again later.");
+                alert("Connection Error. Please try again.");
+            } finally {
+                btn.innerText = "Check My Profile";
+                btn.disabled = false;
             }
         }
 
