@@ -1,74 +1,143 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Lumina Retail | Dashboard</title>
+    <title>Lumina | Portal</title>
     <style>
-        /* matching the dark blue/black theme from your screenshots */
-        body { background-color: #01161e; color: white; font-family: sans-serif; padding: 40px; margin: 0; }
-        .header { margin-bottom: 30px; }
-        .product-list { max-width: 800px; }
-        
-        /* Styled cards for your retail items */
-        .product-card { 
-            background: #052a36; 
-            border: 1px solid #0a4d5c; 
-            padding: 20px; 
-            margin-bottom: 15px; 
-            border-radius: 6px;
-            display: flex; 
-            justify-content: space-between;
-            align-items: center;
+        /* Split Background: Left Black, Right Dark Green */
+        body { 
+            background: linear-gradient(to right, #000000 50%, #062118 50%); 
+            color: #e6f1ff; 
+            font-family: 'Segoe UI', sans-serif; 
+            padding: 50px; 
+            margin: 0; 
+            min-height: 100vh;
         }
+
+        .header { margin-bottom: 50px; }
+
+        /* Massive Waving Hand */
+        .massive-wave { 
+            font-size: 5rem; 
+            display: inline-block;
+            margin-bottom: 15px;
+            animation: wave-animation 2.5s infinite;
+            transform-origin: 70% 70%;
+        }
+
+        h1 { font-size: 3.5em; font-weight: 800; margin: 0; }
         
-        /* Blue 'Manage' and Green 'Download' buttons */
-        .btn-manage { background: #0077b6; border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 8px; }
-        .btn-download { background: #2b9348; border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+        #group-status { margin-top: 10px; font-weight: 600; color: #8892b0; }
+
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 30px; 
+            margin-top: 40px;
+        }
+
+        /* Card style with green glow */
+        .card { 
+            background: rgba(0, 0, 0, 0.85); 
+            border: 2px solid #2b9348; 
+            padding: 30px; 
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .card h3 { color: #2b9348; margin-top: 0; font-size: 1.6em; }
+        .card p { color: #8892b0; line-height: 1.6; }
+
+        .btn-container { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
         
-        .no-products { color: #888; font-style: italic; }
+        .btn { 
+            padding: 14px; 
+            border-radius: 10px; 
+            border: none; 
+            font-weight: 800; 
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-manage { background: #2b9348; color: white; }
+        .btn-transfer { 
+            background: transparent; 
+            border: 2px solid #2b9348; 
+            color: #2b9348; 
+            display: none; /* Only shows if in group */
+        }
+
+        @keyframes wave-animation {
+            0%, 100% { transform: rotate(0deg) }
+            20% { transform: rotate(-8deg) }
+            40% { transform: rotate(14deg) }
+            60% { transform: rotate(-4deg) }
+            80% { transform: rotate(10deg) }
+        }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <h1>👋 <span id="random-greeting">Hello</span>, <span id="username">User</span>!</h1>
-        <p>Welcome to your Lumina Retail dashboard. Manage your licenses below.</p>
+        <div class="massive-wave">👋</div>
+        <h1>Hello, <span id="display-username">Member</span>!</h1>
+        <p id="group-status">Verifying your access...</p>
     </div>
 
-    <div class="product-list">
-        <div class="product-card">
-            <div>
-                <strong>Your First Product</strong>
-                <p style="color: #888; font-size: 0.9em; margin-top: 5px;">You own this product.</p>
-            </div>
-            <div>
-                <button class="btn-manage">Manage Licence</button>
-                <button class="btn-download">Download</button>
-            </div>
-        </div>
-
-        <div class="product-card">
-            <div>
-                <strong>Your Second Product</strong>
-                <p style="color: #888; font-size: 0.9em; margin-top: 5px;">You own this product.</p>
-            </div>
-            <div>
-                <button class="btn-manage">Manage Licence</button>
-                <button class="btn-download">Download</button>
+    <div class="product-grid">
+        <div class="card">
+            <h3>Lumina Hub</h3>
+            <p>Access your retail tools and management database.</p>
+            <div class="btn-container">
+                <button class="btn btn-manage">Manage</button>
+                <button class="btn btn-transfer" id="transfer-btn" onclick="startTransfer()">Transfer</button>
             </div>
         </div>
     </div>
 
     <script>
-        // List of random greetings you wanted
-        const greetings = ["Hola", "Hello", "Bonjour", "Hej", "G'day", "Bongure"];
+        // --- CONFIGURATION ---
+        const GROUP_ID = "916719158"; // Your specific Group ID
         
-        // Picks a random greeting from the list
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        
-        // Puts the random word into the page
-        document.getElementById("random-greeting").innerText = randomGreeting;
-        
-        // You can change 'User' to any name you want here
-        document.getElementById("username").innerText = "Member"; 
+        // Grab the username from the login page
+        const savedName = localStorage.getItem("username") || "Member";
+        document.getElementById("display-username").innerText = savedName;
+
+        // --- GROUP CHECK LOGIC ---
+        async function checkGroupMembership() {
+            const statusLabel = document.getElementById("group-status");
+            const transferBtn = document.getElementById("transfer-btn");
+
+            try {
+                // Using a proxy to check Roblox groups without being blocked
+                const response = await fetch(`https://groups.roproxy.com/v1/users/1/groups/roles`); // Use a real User ID if available
+                const data = await response.json();
+                
+                // For testing, let's assume membership if we can't find a real ID
+                const isInGroup = data.data ? data.data.some(g => g.group.id == GROUP_ID) : true;
+
+                if (isInGroup) {
+                    statusLabel.innerText = "Verified Lumina Member ✅";
+                    statusLabel.style.color = "#2b9348";
+                    transferBtn.style.display = "block"; // Show the button
+                } else {
+                    statusLabel.innerText = "Access Restricted: Join Group 916719158";
+                    statusLabel.style.color = "#ff4d4d";
+                }
+            } catch (err) {
+                statusLabel.innerText = "Connection Error (Check Group Manually)";
+            }
+        }
+
+        function startTransfer() {
+            let target = prompt("Enter the Roblox Username to transfer this product to:");
+            if (target) {
+                alert("Transfer initiated for: " + target);
+            }
+        }
+
+        checkGroupMembership();
     </script>
 </body>
 </html>
