@@ -1,24 +1,14 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Lumina | Portal Access</title>
+    <title>Lumina | Security</title>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
-        body { 
-            background: linear-gradient(to right, #000000 50%, #062118 50%); 
-            color: white; font-family: 'Segoe UI', sans-serif; 
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; 
-        }
-        .box { 
-            background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; 
-            border: 2px solid #2b9348; text-align: center; width: 380px; 
-            box-shadow: 0 0 30px rgba(43, 147, 72, 0.4);
-        }
+        body { background: linear-gradient(to right, #000000 50%, #062118 50%); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 2px solid #2b9348; text-align: center; width: 380px; box-shadow: 0 0 30px rgba(43, 147, 72, 0.4); }
         .massive-wave { font-size: 5rem; display: inline-block; margin-bottom: 10px; animation: wave-animation 2.5s infinite; transform-origin: 70% 70%; }
-        h1 { font-size: 2.2em; margin: 10px 0; }
-        p { color: #8892b0; font-size: 0.95em; }
         input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #2b9348; background: #111; color: white; text-align: center; }
-        .btn { background: #2b9348; color: white; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; width: 95%; margin-top: 15px; font-size: 1rem; transition: 0.3s; }
+        .btn { background: #2b9348; color: white; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; width: 95%; margin-top: 15px; transition: 0.3s; }
         .btn:disabled { opacity: 0.3; pointer-events: none; }
         .hidden { display: none; }
         .code-box { background: #111; padding: 15px; border: 2px dashed #2b9348; color: #2b9348; font-family: monospace; font-size: 1.3em; margin: 15px 0; border-radius: 10px; }
@@ -27,115 +17,75 @@
     </style>
 </head>
 <body>
-
     <div class="box">
         <div class="massive-wave">👋</div>
-        
         <div id="signup-step-1">
             <h1>Create Account</h1>
-            <p>Complete the check and enter your username.</p>
             <div class="cf-turnstile" data-sitekey="0x4AAAAAACKg8RAwFeJ1tWOj" data-callback="onVerify"></div>
             <input type="text" id="username" placeholder="Roblox Username">
             <button class="btn" id="signup-btn" onclick="startVerification()" disabled>Next: Verify Bio</button>
             <button class="toggle-btn" onclick="showLogin()">Already have an account? Log In</button>
         </div>
-
         <div id="signup-step-2" class="hidden">
             <h1>Verify Bio</h1>
             <p>Paste this code into your Roblox "About" section:</p>
             <div class="code-box" id="verify-code">LUMINA-XXXX</div>
             <button class="btn" id="check-bio-btn" onclick="checkBio()">Check My Profile</button>
-            <button class="toggle-btn" onclick="location.reload()">Cancel</button>
         </div>
-
         <div id="signup-step-3" class="hidden">
             <h1>Set Password</h1>
-            <p>Create a password for this portal.</p>
             <input type="password" id="new-pass" placeholder="Create Password">
             <button class="btn" onclick="finishSignUp()">Complete Registration</button>
         </div>
-
         <div id="login-section" class="hidden">
             <h1>Welcome Back</h1>
-            <p>Sign in to your Lumina account.</p>
             <input type="text" id="login-user" placeholder="Username">
             <input type="password" id="login-pass" placeholder="Password">
             <button class="btn" onclick="performLogin()">Log In →</button>
             <button class="toggle-btn" onclick="location.reload()">Need an account? Sign Up</button>
         </div>
     </div>
-
     <script>
         let verificationCode = "";
-
         function onVerify() { document.getElementById('signup-btn').disabled = false; }
-
-        function showLogin() {
-            document.getElementById('signup-step-1').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
-        }
-
+        function showLogin() { document.getElementById('signup-step-1').classList.add('hidden'); document.getElementById('login-section').classList.remove('hidden'); }
         function startVerification() {
             const user = document.getElementById('username').value;
             if (!user) return alert("Please enter a username");
-            
             verificationCode = "LUMINA-" + Math.floor(1000 + Math.random() * 9000);
             document.getElementById('verify-code').innerText = verificationCode;
-            
             document.getElementById('signup-step-1').classList.add('hidden');
             document.getElementById('signup-step-2').classList.remove('hidden');
         }
-
         async function checkBio() {
             const user = document.getElementById('username').value;
-            const btn = document.getElementById('check-bio-btn');
-            btn.innerText = "Verifying...";
-            btn.disabled = true;
-
             try {
                 const userRes = await fetch(`https://users.roproxy.com/v1/users/search?keyword=${user}&limit=1`);
                 const userData = await userRes.json();
-                if (!userData.data.length) throw new Error("User not found");
-                
                 const userId = userData.data[0].id;
                 const profileRes = await fetch(`https://users.roproxy.com/v1/users/${userId}`);
                 const profileData = await profileRes.json();
-                
                 if (profileData.description.includes(verificationCode)) {
                     document.getElementById('signup-step-2').classList.add('hidden');
                     document.getElementById('signup-step-3').classList.remove('hidden');
-                } else {
-                    alert("Code not found in bio! Make sure you saved it and wait 10 seconds.");
-                }
-            } catch (err) {
-                alert("Connection Error. Please try again.");
-            } finally {
-                btn.innerText = "Check My Profile";
-                btn.disabled = false;
-            }
+                } else { alert("Code not found in bio! Wait 20 seconds and try again."); }
+            } catch (err) { alert("Connection Error. Try again."); }
         }
-
         function finishSignUp() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('new-pass').value;
-            if (!pass) return alert("Please set a password");
-
             localStorage.setItem(`pass_${user}`, pass);
             localStorage.setItem("username", user);
             window.location.href = "dashboard.html";
         }
-
         function performLogin() {
             const user = document.getElementById('login-user').value;
             const pass = document.getElementById('login-pass').value;
             const savedPass = localStorage.getItem(`pass_${user}`);
-
             if (pass && (pass === savedPass || pass === "Lumina2026")) {
                 localStorage.setItem("username", user);
                 window.location.href = "dashboard.html";
-            } else {
-                alert("Invalid username or password.");
-            }
+            } else { alert("Invalid password."); }
         }
     </script>
 </body>
