@@ -1,69 +1,61 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body { background-color: #0d1117; color: white; font-family: sans-serif; padding: 20px; }
+        .tab-nav { border-bottom: 1px solid #30363d; margin-bottom: 20px; display: flex; gap: 15px; }
+        .tab-btn { background: none; border: none; color: #8b949e; padding: 10px; cursor: pointer; font-size: 16px; }
+        .tab-btn.active { color: #58a6ff; border-bottom: 2px solid #58a6ff; }
+        .card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 8px; max-width: 300px; }
+        .btn { padding: 8px 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .btn-download { background: #238636; color: white; }
+        .btn-transfer { background: transparent; border: 1px solid #58a6ff; color: #58a6ff; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-<<<<<<< HEAD
-    <div class="container">
-        <header>
-            <nav class="tab-nav">
-                <button class="tab-btn active" onclick="openTab(event, 'Products')">Your Products</button>
-                <button class="tab-btn" onclick="openTab(event, 'FreeStuff')">Free Stuff</button>
-            </nav>
-            <a href="index.html" class="logout">Logout</a>
-        </header>
-=======
-    <span class="logout" onclick="localStorage.clear(); location.href='index.html'">Logout</span>
-    <h1>Your Products</h1>
-    <div id="products" class="grid">Loading...</div>
->>>>>>> db275e2b32e34db6dacfd78d9ebcecc82e826667
+    <header>
+        <nav class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(event, 'Products')">Your Products</button>
+            <button class="tab-btn" onclick="switchTab(event, 'FreeStuff')">Free Stuff</button>
+        </nav>
+        <a href="index.html" style="color:#8b949e; text-decoration:none; font-size:14px;">Logout</a>
+    </header>
 
-        <div id="Products" class="tab-content">
-            <div class="grid">
-                <div class="card">
-                    <h3>Software License v1</h3>
-                    <div class="btn-group">
-                        <button class="btn btn-download">Download</button>
-                        <button class="btn btn-transfer">Transfer License</button>
-                    </div>
-                </div>
-            </div>
+    <div id="Products" class="tab-content">
+        <h1>Your Products</h1>
+        <div class="card">
+            <h3>Software License v1</h3>
+            <p style="color: #238636;">● Active</p>
+            <button class="btn btn-download" onclick="alert('Downloading...')">Download</button>
+            <button class="btn btn-transfer" onclick="handleTransfer()">Transfer License</button>
         </div>
+    </div>
 
-        <div id="FreeStuff" class="tab-content" style="display:none">
-            <div class="grid">
-                <div class="card">
-                    <h3>Free Asset Pack</h3>
-                    <button class="btn btn-download">Download Free Stuff</button>
-                </div>
-            </div>
+    <div id="FreeStuff" class="tab-content hidden">
+        <h1>Free Stuff</h1>
+        <div class="card">
+            <h3>Community Asset Pack</h3>
+            <p>Free Version</p>
+            <button class="btn btn-download" onclick="alert('Downloading Free Assets...')">Download</button>
         </div>
     </div>
 
     <script>
-        function openTab(evt, tabName) {
-            const contents = document.getElementsByClassName("tab-content");
-            for (let i = 0; i < contents.length; i++) {
-                contents[i].style.display = "none";
-            }
-            const tabs = document.getElementsByClassName("tab-btn");
-            for (let i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove("active");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.classList.add("active");
+        function switchTab(evt, tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.remove('hidden');
+            evt.currentTarget.classList.add('active');
         }
 
-        // Transfer Button Logic
-        document.querySelectorAll('.btn-transfer').forEach(btn => {
-            btn.onclick = () => {
-                const user = prompt("Transfer to which user/email?");
-                if(user) alert("Transferring to " + user);
-            };
-        });
+        function handleTransfer() {
+            const user = prompt("Enter the recipient's email for the license transfer:");
+            if (user) alert("Transfer request sent to: " + user);
+        }
     </script>
 </body>
 </html>
