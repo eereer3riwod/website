@@ -2,14 +2,12 @@
 <html>
 <head>
     <title>Lumina | Security Portal</title>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         body { background: linear-gradient(to right, #000000 50%, #062118 50%); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .box { background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 2px solid #2b9348; text-align: center; width: 380px; box-shadow: 0 0 30px rgba(43, 147, 72, 0.4); }
         h1 { color: #2b9348; margin-bottom: 20px; }
         input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #2b9348; background: #111; color: white; text-align: center; outline: none; }
         .btn { background: #2b9348; color: white; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; width: 95%; margin-top: 15px; transition: 0.3s; }
-        .btn:disabled { opacity: 0.3; pointer-events: none; }
         .hidden { display: none; }
         .code-box { background: #111; padding: 15px; border: 2px dashed #2b9348; color: #2b9348; font-family: monospace; font-size: 1.3em; margin: 15px 0; border-radius: 10px; }
         .status-msg { font-size: 0.85em; color: #8892b0; margin-top: 10px; }
@@ -19,10 +17,9 @@
     <div class="box">
         <div id="signup-step-1">
             <h1>Create Account</h1>
-            <p class="status-msg">Complete the check to continue</p>
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAACKg8RAwFeJ1tWOj" data-callback="onVerify"></div>
+            <p class="status-msg">Enter your Roblox username to begin</p>
             <input type="text" id="username" placeholder="Roblox Username">
-            <button class="btn" id="signup-btn" onclick="startVerification()" disabled>Next: Verify Bio</button>
+            <button class="btn" id="signup-btn" onclick="startVerification()">Next: Verify Bio</button>
         </div>
 
         <div id="signup-step-2" class="hidden">
@@ -36,10 +33,6 @@
 
     <script>
         let verificationCode = "";
-
-        function onVerify() { 
-            document.getElementById('signup-btn').disabled = false; 
-        }
 
         function startVerification() {
             const user = document.getElementById('username').value;
@@ -58,7 +51,6 @@
             btn.disabled = true;
 
             try {
-                // Fetch User via RoProxy
                 const userRes = await fetch(`https://users.roproxy.com/v1/users/search?keyword=${user}&limit=1`);
                 const userData = await userRes.json();
 
@@ -74,8 +66,8 @@
                 const profileData = await profileRes.json();
 
                 if (profileData.description.includes(verificationCode)) {
-                    localStorage.setItem("username", user); // Save login session
-                    window.location.href = "dashboard.html"; // Redirect to dashboard
+                    localStorage.setItem("username", user);
+                    window.location.href = "dashboard.html"; 
                 } else {
                     alert("Code not found in bio! Did you click Save?");
                     btn.innerText = "Check My Profile";
