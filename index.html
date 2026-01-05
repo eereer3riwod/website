@@ -7,12 +7,12 @@
         body { background: linear-gradient(to right, #000000 50%, #062118 50%); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .box { background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 2px solid #2b9348; text-align: center; width: 380px; box-shadow: 0 0 30px rgba(43, 147, 72, 0.4); }
         h1 { color: #2b9348; margin-bottom: 20px; }
-        input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #2b9348; background: #111; color: white; text-align: center; }
+        input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #2b9348; background: #111; color: white; text-align: center; outline: none; }
         .btn { background: #2b9348; color: white; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; width: 95%; margin-top: 15px; transition: 0.3s; }
         .btn:disabled { opacity: 0.3; pointer-events: none; }
         .hidden { display: none; }
         .code-box { background: #111; padding: 15px; border: 2px dashed #2b9348; color: #2b9348; font-family: monospace; font-size: 1.3em; margin: 15px 0; border-radius: 10px; }
-        .status-msg { font-size: 0.9em; color: #8892b0; margin-top: 10px; }
+        .status-msg { font-size: 0.85em; color: #8892b0; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -30,24 +30,17 @@
             <p>Paste this code into your Roblox "About" section:</p>
             <div class="code-box" id="verify-code">LUMINA-XXXX</div>
             <button class="btn" id="check-bio-btn" onclick="checkBio()">Check My Profile</button>
-            <p class="status-msg">Wait 10 seconds after saving on Roblox</p>
-        </div>
-
-        <div id="signup-step-3" class="hidden">
-            <h1>Success!</h1>
-            <p>Your account is verified. Redirecting...</p>
+            <p class="status-msg">Wait 15 seconds after saving on Roblox</p>
         </div>
     </div>
 
     <script>
         let verificationCode = "";
 
-        // Enables button after Cloudflare check
         function onVerify() { 
-            document.getElementById('signup-btn').disabled = true; 
+            document.getElementById('signup-btn').disabled = false; 
         }
 
-        // Generates the unique code for the user
         function startVerification() {
             const user = document.getElementById('username').value;
             if (!user) return alert("Please enter a username");
@@ -58,45 +51,38 @@
             document.getElementById('signup-step-2').classList.remove('hidden');
         }
 
-        // Fixed Connection Logic
         async function checkBio() {
             const user = document.getElementById('username').value;
             const btn = document.getElementById('check-bio-btn');
-            btn.innerText = "Verifying...";
+            btn.innerText = "Connecting...";
             btn.disabled = true;
 
             try {
-                // Fetch User ID using RoProxy
+                // Fetch User via RoProxy
                 const userRes = await fetch(`https://users.roproxy.com/v1/users/search?keyword=${user}&limit=1`);
                 const userData = await userRes.json();
 
                 if (!userData.data || userData.data.length === 0) {
-                    throw new Error("User not found");
+                    alert("User not found! Check spelling.");
+                    btn.innerText = "Check My Profile";
+                    btn.disabled = false;
+                    return;
                 }
 
                 const userId = userData.data[0].id;
-
-                // Fetch Profile Description
                 const profileRes = await fetch(`https://users.roproxy.com/v1/users/${userId}`);
                 const profileData = await profileRes.json();
 
-                // Validate Bio
                 if (profileData.description.includes(verificationCode)) {
-                    localStorage.setItem("username", user);
-                    document.getElementById('signup-step-2').classList.add('hidden');
-                    document.getElementById('signup-step-3').classList.remove('hidden');
-                    
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 2000);
+                    localStorage.setItem("username", user); // Save login session
+                    window.location.href = "dashboard.html"; // Redirect to dashboard
                 } else {
-                    alert("Code not found! Double check your Roblox bio and try again.");
+                    alert("Code not found in bio! Did you click Save?");
                     btn.innerText = "Check My Profile";
                     btn.disabled = false;
                 }
             } catch (err) {
-                // Fixes the generic Connection Error
-                alert("Roblox connection failed. Ensure the username is correct or try again in a moment.");
+                alert("Connection Error. Roblox is busy, try again in 5 seconds.");
                 btn.innerText = "Check My Profile";
                 btn.disabled = false;
             }

@@ -1,74 +1,39 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Lumina Retail | Dashboard</title>
+    <title>Lumina | Dashboard</title>
     <style>
-        /* matching the dark blue/black theme from your screenshots */
-        body { background-color: #01161e; color: white; font-family: sans-serif; padding: 40px; margin: 0; }
-        .header { margin-bottom: 30px; }
-        .product-list { max-width: 800px; }
-        
-        /* Styled cards for your retail items */
-        .product-card { 
-            background: #052a36; 
-            border: 1px solid #0a4d5c; 
-            padding: 20px; 
-            margin-bottom: 15px; 
-            border-radius: 6px;
-            display: flex; 
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        /* Blue 'Manage' and Green 'Download' buttons */
-        .btn-manage { background: #0077b6; border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-right: 8px; }
-        .btn-download { background: #2b9348; border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
-        
-        .no-products { color: #888; font-style: italic; }
+        body { background: #062118; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: rgba(0,0,0,0.85); padding: 40px; border-radius: 20px; border: 2px solid #2b9348; text-align: center; width: 450px; }
+        h1 { color: #2b9348; margin-top: 0; }
+        .user-card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #2b9348; margin: 25px 0; font-size: 1.2em; }
+        .logout { color: #8892b0; text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>👋 <span id="random-greeting">Hello</span>, <span id="username">User</span>!</h1>
-        <p>Welcome to your Lumina Retail dashboard. Manage your licenses below.</p>
-    </div>
-
-    <div class="product-list">
-        <div class="product-card">
-            <div>
-                <strong>Your First Product</strong>
-                <p style="color: #888; font-size: 0.9em; margin-top: 5px;">You own this product.</p>
-            </div>
-            <div>
-                <button class="btn-manage">Manage Licence</button>
-                <button class="btn-download">Download</button>
-            </div>
+    <div class="container">
+        <h1>Welcome to Lumina</h1>
+        <p>Security verification successful.</p>
+        <div class="user-card">
+            Verified as: <span id="user-display" style="color:#2b9348; font-weight:bold;">Guest</span>
         </div>
-
-        <div class="product-card">
-            <div>
-                <strong>Your Second Product</strong>
-                <p style="color: #888; font-size: 0.9em; margin-top: 5px;">You own this product.</p>
-            </div>
-            <div>
-                <button class="btn-manage">Manage Licence</button>
-                <button class="btn-download">Download</button>
-            </div>
-        </div>
+        <p style="color: #8892b0;">You now have access to protected features.</p>
+        <span class="logout" onclick="logout()">Logout & Secure Session</span>
     </div>
 
     <script>
-        // List of random greetings you wanted
-        const greetings = ["Hola", "Hello", "Bonjour", "Hej", "G'day", "Bongure"];
-        
-        // Picks a random greeting from the list
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        
-        // Puts the random word into the page
-        document.getElementById("random-greeting").innerText = randomGreeting;
-        
-        // You can change 'User' to any name you want here
-        document.getElementById("username").innerText = "Member"; 
+        // Security check: If not logged in, go back to index
+        const savedUser = localStorage.getItem("username");
+        if (!savedUser) {
+            window.location.href = "index.html";
+        } else {
+            document.getElementById("user-display").innerText = savedUser;
+        }
+
+        function logout() {
+            localStorage.removeItem("username");
+            window.location.href = "index.html";
+        }
     </script>
 </body>
 </html>
