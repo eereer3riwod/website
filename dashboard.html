@@ -3,32 +3,49 @@
 <head>
     <title>Lumina | Dashboard</title>
     <style>
-        body { background: #062118; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: rgba(0,0,0,0.85); padding: 40px; border-radius: 20px; border: 2px solid #2b9348; text-align: center; width: 450px; }
-        h1 { color: #2b9348; margin-top: 0; }
-        .user-card { background: #111; padding: 20px; border-radius: 12px; border: 1px solid #2b9348; margin: 25px 0; font-size: 1.2em; }
-        .logout { color: #8892b0; text-decoration: underline; cursor: pointer; display: block; margin-top: 20px; }
+        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
+        .sidebar { width: 250px; background: #000; border-right: 1px solid #2b9348; height: 100vh; padding: 20px; }
+        .main { flex-grow: 1; padding: 40px; }
+        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .welcome-text { color: #2b9348; font-size: 1.5em; margin-bottom: 20px; }
+        .logout { color: #ff4d4d; cursor: pointer; text-decoration: underline; margin-top: 50px; display: block; }
+        .nav-item { padding: 10px; color: #8892b0; cursor: pointer; transition: 0.3s; }
+        .nav-item:hover { color: #2b9348; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Lumina</h1>
-        <div class="user-card">
-            Verified as: <span id="user-display" style="color:#2b9348; font-weight:bold;">Guest</span>
+    <div class="sidebar">
+        <h2>Lumina</h2>
+        <div class="nav-item">🏠 Home</div>
+        <div class="nav-item">📦 Inventory</div>
+        <div class="nav-item">📊 Analytics</div>
+        <span class="logout" onclick="logout()">Logout Session</span>
+    </div>
+    <div class="main">
+        <div class="welcome-text">Welcome back, Agent <span id="userId">...</span></div>
+        
+        <div class="card">
+            <h3>Retail News</h3>
+            <p>Your Bloxlink Global API is currently being reviewed. Some features may be limited.</p>
         </div>
-        <span class="logout" onclick="logout()">Logout</span>
+
+        <div class="card">
+            <h3>System Status</h3>
+            <p>Security: <span style="color: #2b9348;">Verified ✅</span></p>
+        </div>
     </div>
 
     <script>
-        const savedUser = localStorage.getItem("username");
-        if (!savedUser) {
+        // Protection: If no session, kick back to login
+        const robloxID = localStorage.getItem("robloxID");
+        if (!robloxID) {
             window.location.href = "index.html";
         } else {
-            document.getElementById("user-display").innerText = savedUser;
+            document.getElementById("userId").innerText = robloxID;
         }
 
         function logout() {
-            localStorage.removeItem("username");
+            localStorage.clear();
             window.location.href = "index.html";
         }
     </script>
