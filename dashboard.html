@@ -1,53 +1,94 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Lumina | Dashboard</title>
+    <meta charset="UTF-8">
+    <title>Lumina | Admin Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
-        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; }
-        .sidebar { width: 250px; background: #000; border-right: 1px solid #2b9348; height: 100vh; padding: 20px; }
-        .main { flex-grow: 1; padding: 40px; }
-        .card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .welcome-text { color: #2b9348; font-size: 1.5em; margin-bottom: 20px; }
-        .logout { color: #ff4d4d; cursor: pointer; text-decoration: underline; margin-top: 50px; display: block; }
-        .nav-item { padding: 10px; color: #8892b0; cursor: pointer; transition: 0.3s; }
-        .nav-item:hover { color: #2b9348; }
+        body { background: #0f0f0f; color: white; font-family: sans-serif; padding: 40px; }
+        .panel { background: #1a1a1a; padding: 25px; border-radius: 12px; max-width: 500px; margin: 0 auto 20px; border: 1px solid #333; }
+        h2 { color: #00a2ff; margin-top: 0; }
+        input, textarea { width: 95%; padding: 10px; margin: 10px 0; background: #2a2a2a; border: none; color: white; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background: #00a2ff; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        button.delete { background: #ff4d4d; margin-top: 10px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Lumina</h2>
-        <div class="nav-item">🏠 Home</div>
-        <div class="nav-item">📦 Inventory</div>
-        <div class="nav-item">📊 Analytics</div>
-        <span class="logout" onclick="logout()">Logout Session</span>
-    </div>
-    <div class="main">
-        <div class="welcome-text">Welcome back, Agent <span id="userId">...</span></div>
-        
-        <div class="card">
-            <h3>Retail News</h3>
-            <p>Your Bloxlink Global API is currently being reviewed. Some features may be limited.</p>
-        </div>
 
-        <div class="card">
-            <h3>System Status</h3>
-            <p>Security: <span style="color: #2b9348;">Verified ✅</span></p>
-        </div>
+<div id="login" class="panel">
+    <h2>Admin Login</h2>
+    <input type="password" id="pass" placeholder="Enter Admin Password">
+    <button onclick="login()">Access Dashboard</button>
+</div>
+
+<div id="dashboard" class="hidden">
+    <div class="panel">
+        <h2>Add New Product</h2>
+        <input type="text" id="pName" placeholder="Product Name">
+        <textarea id="pDesc" placeholder="Description"></textarea>
+        <input type="number" id="pPrice" placeholder="Price (Robux)">
+        <input type="text" id="pLink" placeholder="Purchase Link (URL)">
+        <button onclick="addProduct()">Add Product</button>
     </div>
 
-    <script>
-        // Protection: If no session, kick back to login
-        const robloxID = localStorage.getItem("robloxID");
-        if (!robloxID) {
-            window.location.href = "index.html";
+    <div class="panel">
+        <h2>Manual License Grant</h2>
+        <input type="text" id="targetId" placeholder="Roblox User ID">
+        <button onclick="grantLicense()">Grant License</button>
+        <button class="delete" onclick="revokeLicense()">Revoke License</button>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://linina-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function login() {
+        // Change 'lumina123' to whatever password you want
+        if (document.getElementById('pass').value === 'lumina123') {
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
         } else {
-            document.getElementById("userId").innerText = robloxID;
+            alert("Wrong password!");
         }
+    }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = "index.html";
-        }
-    </script>
+    // ADD PRODUCT TO DATABASE
+    function addProduct() {
+        const name = document.getElementById('pName').value;
+        const desc = document.getElementById('pDesc').value;
+        const price = document.getElementById('pPrice').value;
+        const link = document.getElementById('pLink').value;
+
+        if(!name || !price) return alert("Fill in details!");
+
+        const newProdRef = db.ref('products').push();
+        newProdRef.set({
+            name: name,
+            description: desc,
+            price: price,
+            link: link
+        }).then(() => {
+            alert("Product Added!");
+            location.reload();
+        });
+    }
+
+    // LICENSE CONTROLS
+    function grantLicense() {
+        const id = document.getElementById('targetId').value;
+        if(!id) return;
+        db.ref('licenses/' + id).set({ licensed: true, date: new Date().toISOString() })
+            .then(() => alert("License Granted!"));
+    }
+
+    function revokeLicense() {
+        const id = document.getElementById('targetId').value;
+        db.ref('licenses/' + id).remove().then(() => alert("License Revoked!"));
+    }
+</script>
 </body>
 </html>
