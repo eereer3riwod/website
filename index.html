@@ -2,24 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Product System</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Admin Access</title>
+    <style>
+        body { background-color: #0d1117; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: #161b22; border: 1px solid #30363d; padding: 40px; border-radius: 12px; width: 350px; text-align: center; }
+        h2 { color: #58a6ff; margin-bottom: 10px; }
+        input { width: 100%; padding: 12px; margin: 20px 0; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #0099ff; border: none; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #007acc; }
+    </style>
 </head>
-<body class="login-page">
+<body>
     <div class="login-card">
-        <h2 style="color: #58a6ff;">Admin Access</h2>
+        <h2>Admin Access</h2>
         <p>Enter any username to continue</p>
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="Username" required style="width:100%; padding:10px; margin-bottom:10px;">
-            <button type="submit" class="btn-primary" style="width:100%; padding:10px; background:#58a6ff; border:none; color:white; cursor:pointer;">Access Dashboard</button>
+        <form onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+            <input type="text" placeholder="Username" required>
+            <button type="submit">Access Dashboard</button>
         </form>
     </div>
-
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            window.location.href = 'dashboard.html';
-        });
-    </script>
 </body>
 </html>
