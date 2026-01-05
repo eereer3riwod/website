@@ -51,6 +51,7 @@
             btn.disabled = true;
 
             try {
+                // Fetch User via RoProxy
                 const userRes = await fetch(`https://users.roproxy.com/v1/users/search?keyword=${user}&limit=1`);
                 const userData = await userRes.json();
 
@@ -74,7 +75,7 @@
                     btn.disabled = false;
                 }
             } catch (err) {
-                alert("Connection Error. Roblox is busy, try again in 5 seconds.");
+                alert("Connection Error. Try again.");
                 btn.innerText = "Check My Profile";
                 btn.disabled = false;
             }
