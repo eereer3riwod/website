@@ -1,159 +1,57 @@
-﻿<<<<<<< HEAD
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina License Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    
-    <style>
-        body { font-family: sans-serif; background: #111; color: #fff; text-align: center; padding-top: 50px; }
-        .container { background: #222; padding: 30px; border-radius: 10px; display: inline-block; }
-        input { padding: 10px; border-radius: 5px; border: none; width: 200px; }
-        button { padding: 10px 20px; border-radius: 5px; border: none; background: #00a2ff; color: #fff; cursor: pointer; }
-        #status { margin-top: 20px; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>Lumina Dashboard</h1>
-    <input type="text" id="rbxId" placeholder="Enter Roblox User ID">
-    <button onclick="verifyLicense()">Check License</button>
-    <div id="status"></div>
-</div>
-
-<script>
-    // 1. Replace with your actual Firebase config from the console
-    const firebaseConfig = {
-        databaseURL: "https://linina-default-rtdb.firebaseio.com/"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    async function verifyLicense() {
-        const userId = document.getElementById('rbxId').value.trim();
-        const statusDiv = document.getElementById('status');
-
-        // PREVENT 400 ERROR: Validate ID before making the request
-        if (!userId || isNaN(userId)) {
-            statusDiv.innerText = "❌ Please enter a valid numerical ID.";
-            statusDiv.style.color = "red";
-            return;
-        }
-
-        statusDiv.innerText = "Checking...";
-        statusDiv.style.color = "white";
-
-        try {
-            // Fetch user data from RoProxy
-            const response = await fetch(`https://users.roproxy.com/v1/users/${userId}`);
-            
-            if (response.status === 400) {
-                statusDiv.innerText = "❌ Error 400: Bad Request. Check your ID format.";
-                statusDiv.style.color = "red";
-                return;
-            }
-
-            const userData = await response.json();
-
-            // Check Firebase for license entry
-            db.ref('licenses/' + userId).once('value', (snapshot) => {
-                if (snapshot.exists() && snapshot.val().licensed) {
-                    statusDiv.innerText = `✅ License Active for ${userData.displayName || userData.name}`;
-                    statusDiv.style.color = "green";
-                } else {
-                    statusDiv.innerText = `❌ No License Found for ${userData.displayName || userData.name}`;
-                    statusDiv.style.color = "red";
-                }
-            });
-        } catch (error) {
-            statusDiv.innerText = "⚠️ Connection Error. Check your internet or RoProxy status.";
-            statusDiv.style.color = "orange";
-        }
-    }
-</script>
-</body>
-=======
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina License Dashboard</title>
+    <title>Lumina License Verification</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    
     <style>
-        body { font-family: sans-serif; background: #111; color: #fff; text-align: center; padding-top: 50px; }
-        .container { background: #222; padding: 30px; border-radius: 10px; display: inline-block; }
-        input { padding: 10px; border-radius: 5px; border: none; width: 200px; }
-        button { padding: 10px 20px; border-radius: 5px; border: none; background: #00a2ff; color: #fff; cursor: pointer; }
+        body { background: #111; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .box { background: #222; padding: 20px; border-radius: 10px; display: inline-block; width: 300px; }
+        input { padding: 10px; width: 80%; margin-bottom: 10px; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; background: #00a2ff; border: none; color: white; border-radius: 5px; cursor: pointer; }
         #status { margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div class="box">
+        <h1>Lumina</h1>
+        <input type="text" id="rbxId" placeholder="Enter Roblox ID">
+        <button onclick="check()">Check License</button>
+        <div id="status"></div>
+    </div>
 
-<div class="container">
-    <h1>Lumina Dashboard</h1>
-    <input type="text" id="rbxId" placeholder="Enter Roblox User ID">
-    <button onclick="verifyLicense()">Check License</button>
-    <div id="status"></div>
-</div>
+    <script>
+        // 1. YOUR FIREBASE CONFIG
+        const firebaseConfig = { databaseURL: "https://linina-default-rtdb.firebaseio.com/" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<script>
-    // 1. Replace with your actual Firebase config from the console
-    const firebaseConfig = {
-        databaseURL: "https://linina-default-rtdb.firebaseio.com/"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+        async function check() {
+            const id = document.getElementById('rbxId').value.trim();
+            const status = document.getElementById('status');
 
-    async function verifyLicense() {
-        const userId = document.getElementById('rbxId').value.trim();
-        const statusDiv = document.getElementById('status');
+            // This line stops the 400 error by preventing blank requests
+            if (!id || isNaN(id)) { return status.innerText = "❌ Enter a valid ID"; }
 
-        // PREVENT 400 ERROR: Validate ID before making the request
-        if (!userId || isNaN(userId)) {
-            statusDiv.innerText = "❌ Please enter a valid numerical ID.";
-            statusDiv.style.color = "red";
-            return;
-        }
-
-        statusDiv.innerText = "Checking...";
-        statusDiv.style.color = "white";
-
+            status.innerText = "Checking...";
             try {
-                const userRes = await fetch(`https://users.roproxy.com/v1/users/search?keyword=${user}&limit=1`);
-                const userData = await userRes.json();
+                // Check RoProxy
+                const res = await fetch(`https://users.roproxy.com/v1/users/${id}`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
 
-                if (!userData.data || userData.data.length === 0) {
-                    alert("User not found! Check spelling.");
-                    btn.innerText = "Check My Profile";
-                    btn.disabled = false;
-                    return;
-                }
-
-            const userData = await response.json();
-
-            // Check Firebase for license entry
-            db.ref('licenses/' + userId).once('value', (snapshot) => {
-                if (snapshot.exists() && snapshot.val().licensed) {
-                    statusDiv.innerText = `✅ License Active for ${userData.displayName || userData.name}`;
-                    statusDiv.style.color = "green";
-                } else {
-                    statusDiv.innerText = `❌ No License Found for ${userData.displayName || userData.name}`;
-                    statusDiv.style.color = "red";
-                }
-            } catch (err) {
-                alert("Connection Error. Roblox is busy, try again in 5 seconds.");
-                btn.innerText = "Check My Profile";
-                btn.disabled = false;
+                // Check Firebase
+                db.ref('licenses/' + id).once('value', (snap) => {
+                    if (snap.exists() && snap.val().licensed) {
+                        status.innerHTML = `<span style="color:green">✅ Active for ${data.displayName}</span>`;
+                    } else {
+                        status.innerHTML = `<span style="color:red">❌ No License Found</span>`;
+                    }
+                });
+            } catch (e) {
+                status.innerText = "⚠️ Proxy Error. Try again.";
             }
         }
     </script>
 </body>
->>>>>>> 99408e2d23ffc3cbad0bd319db71ae17dd5dcee9
 </html>
