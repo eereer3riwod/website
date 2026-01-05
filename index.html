@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,4 +99,106 @@
     }
 </script>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lumina | Portal</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <style>
+        :root { --primary: #00ff88; --bg: #0b0b0b; --card: #161616; }
+        body { background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: var(--card); padding: 40px; border-radius: 15px; border: 1px solid #333; width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); border: none; color: #000; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .switch-btn { background: transparent; color: #888; text-decoration: underline; border: none; margin-top: 20px; cursor: pointer; }
+        .code-box { background: rgba(0, 255, 136, 0.1); border: 1px dashed var(--primary); padding: 10px; margin: 15px 0; color: var(--primary); font-weight: bold; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Lumina</h1>
+
+    <div id="loginSection">
+        <input type="text" id="logId" placeholder="Roblox User ID">
+        <input type="password" id="logPass" placeholder="Password">
+        <button onclick="handleLogin()">Login</button>
+        <button class="switch-btn" onclick="toggleView('signup')">Create an Account</button>
+    </div>
+
+    <div id="signupSection" class="hidden">
+        <div id="step1">
+            <input type="text" id="regId" placeholder="Roblox ID">
+            <button onclick="startVerify()">Verify Identity</button>
+        </div>
+        <div id="step2" class="hidden">
+            <p>Put this in your Roblox Bio:</p>
+            <div class="code-box" id="verifyCode"></div>
+            <button onclick="checkBio()">I've Updated My Bio</button>
+        </div>
+        <div id="step3" class="hidden">
+            <input type="password" id="regPass" placeholder="Set Password">
+            <button onclick="finishSignup()">Complete Sign Up</button>
+        </div>
+        <button class="switch-btn" onclick="toggleView('login')">Back to Login</button>
+    </div>
+    <div id="status" style="margin-top:15px;"></div>
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://linina-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let tempCode = "";
+    let tempId = "";
+
+    function toggleView(view) {
+        document.getElementById('loginSection').classList.toggle('hidden', view === 'signup');
+        document.getElementById('signupSection').classList.toggle('hidden', view === 'login');
+    }
+
+    function handleLogin() {
+        const id = document.getElementById('logId').value.trim();
+        const pass = document.getElementById('logPass').value;
+        db.ref('users/' + id).once('value', (snap) => {
+            if (snap.exists() && snap.val().password === pass) {
+                localStorage.setItem('user_id', id);
+                window.location.href = "dashboard.html";
+            } else { alert("❌ Invalid Credentials"); }
+        });
+    }
+
+    function startVerify() {
+        tempId = document.getElementById('regId').value.trim();
+        if(!tempId) return;
+        tempCode = "LUMINA-" + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('verifyCode').innerText = tempCode;
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+    }
+
+    async function checkBio() {
+        const res = await fetch(`https://users.roproxy.com/v1/users/${tempId}`);
+        const data = await res.json();
+        if (data.description && data.description.includes(tempCode)) {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+        } else { alert("❌ Code not found in bio!"); }
+    }
+
+    function finishSignup() {
+        const pass = document.getElementById('regPass').value;
+        db.ref('users/' + tempId).set({ password: pass }).then(() => {
+            alert("✅ Account Created!");
+            location.reload();
+        });
+    }
+</script>
+</body>
+>>>>>>> 43280d1abb7f6686baa6e2096097984c82cb1c35
 </html>
